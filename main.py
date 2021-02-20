@@ -100,31 +100,94 @@ def Move(piecerow, piececol, row, col):
 			elif turn == 'down':
 				player2.removePiece(pieces_board[piecerow-1][piececol+1])
 			pieces_board[piecerow-1][piececol+1] = 0
+		elif piecerow + 2 == row and piececol + 2 == col:
+			if turn == "up":
+				player1.removePiece(pieces_board[piecerow+1][piececol+1])
+			elif turn == 'down':
+				player2.removePiece(pieces_board[piecerow+1][piececol+1])
+			pieces_board[piecerow+1][piececol+1] = 0
+		elif piecerow + 2 == row and piececol - 2 == col:
+			if turn == "up":
+				player1.removePiece(pieces_board[piecerow+1][piececol-1])
+			elif turn == 'down':
+				player2.removePiece(pieces_board[piecerow+1][piececol-1])
+			pieces_board[piecerow+1][piececol-1] = 0
 
+		if row == 0 or row == 7:
+			pieces_board[piecerow][piececol].setKing()
 		pieces_board[piecerow][piececol], pieces_board[row][col] = pieces_board[row][col], pieces_board[piecerow][piececol]
+
 
 # Gets the Possible moves of a piece
 def getMoves(piecerow, piececol, turn):
-	fin_list = []
-	if turn == "down":
-		if (piecerow-1 >= 0 and piececol-1 >= 0):
-			if pieces_board[piecerow-1][piececol-1] in player2.getPieces() or  pieces_board[piecerow-1][piececol+1] in player2.getPieces():
-				if pieces_board[piecerow-2][piececol-2] == 0:
-					fin_list.append((piecerow-2, piececol-2))
-				if pieces_board[piecerow-2][piececol+2] == 0:
-					fin_list.append((piecerow-2, piececol+2))
+	fin_list = [] # List for all possible moves of the piece
+	if turn == "down": # If Player1 Turn
+		if pieces_board[piecerow][piececol].getKing(): # If the Piece is king
+			if pieces_board[piecerow+1][piececol-1] in player2.getPieces() or  pieces_board[piecerow+1][piececol+1] in player2.getPieces(): # If diagonal down left or right pieces are pieces of other player
+				if (piecerow+2 <= 7 and piececol-2 >= 0): # Check to make sure it isn't out of index
+					if pieces_board[piecerow+2][piececol-2] == 0 and pieces_board[piecerow+1][piececol-1] in player2.getPieces(): # For down-left
+						fin_list.append((piecerow+2, piececol-2))
+				if piecerow+2 <= 7 and piececol + 2 <= 7: # Make sure it isnt out of index
+					if pieces_board[piecerow+2][piececol+2] == 0 and pieces_board[piecerow+1][piececol+1] in player2.getPieces(): # For down-right
+						fin_list.append((piecerow+2, piececol+2))
+			if pieces_board[piecerow-1][piececol-1] in player2.getPieces() or  pieces_board[piecerow-1][piececol+1] in player2.getPieces(): # If diagonal up left or right pieces are pieces of other player
+				if (piecerow-2 >= 0 and piececol-2 >= 0): # Check if index isn't out of range
+					if pieces_board[piecerow-2][piececol-2] == 0 and pieces_board[piecerow-1][piececol-1] in player2.getPieces(): # For up-left
+						fin_list.append((piecerow-2, piececol-2))
+				if piecerow-2 >= 0 and piececol + 2 <= 7: # Check if index isn't out of range
+					if pieces_board[piecerow-2][piececol+2] == 0 and pieces_board[piecerow-1][piececol-1] in player2.getPieces(): # For up-right
+						fin_list.append((piecerow-2, piececol+2))
+		else: # If not King
+			if pieces_board[piecerow-1][piececol-1] in player2.getPieces() or  pieces_board[piecerow-1][piececol+1] in player2.getPieces(): # If diagonal up left or right pieces are pieces of other player
+				if (piecerow-2 >= 0 and piececol-2 >= 0): # Check if index isn't out of range
+					if pieces_board[piecerow-2][piececol-2] == 0 and pieces_board[piecerow-1][piececol-1] in player2.getPieces(): # For up-left
+						fin_list.append((piecerow-2, piececol-2))
+				if piecerow-2 >= 0 and piececol + 2 <= 7: # Check if index isn't out of range
+					if pieces_board[piecerow-2][piececol+2] == 0 and pieces_board[piecerow-1][piececol+1] in player2.getPieces(): # For up-right
+						fin_list.append((piecerow-2, piececol+2))
+			if len(fin_list) > 0: # If something is appended then return the list
 				return fin_list
-			if pieces_board[piecerow-1][piececol-1] == 0:
+		# Moves which doesn't involve Capturing other pieces
+		if (piecerow-1 >= 0 and piececol-1 >= 0): # Check if index not out of range
+			if pieces_board[piecerow-1][piececol-1] == 0: # top-left
 				fin_list.append((piecerow-1, piececol-1))
-		if (piecerow-1 >= 0 and piececol+1 <= 7):
-			if pieces_board[piecerow-1][piececol+1] == 0:
+		if (piecerow-1 >= 0 and piececol+1 <= 7): # Check if index not out of range
+			if pieces_board[piecerow-1][piececol+1] == 0: # top-right
 				fin_list.append((piecerow-1, piececol+1))
-	else:
-		if (piecerow+1 <= 7 and piececol-1 >= 0):
-			if pieces_board[piecerow+1][piececol-1] == 0:
+	else: # Player2 turn
+		if pieces_board[piecerow][piececol].getKing(): # If piece is king
+			if pieces_board[piecerow-1][piececol-1] in player1.getPieces() or  pieces_board[piecerow-1][piececol+1] in player1.getPieces(): # Checks for top-left and top-right for player1 pieces
+				if (piecerow-2 >= 0 and piececol-2 >= 0):
+					if pieces_board[piecerow-2][piececol-2] == 0 and pieces_board[piecerow-1][piececol-1] in player1.getPieces(): # up-left
+						fin_list.append((piecerow-2, piececol-2))
+				if piecerow-2 >= 0 and piececol + 2 <= 7:
+					if pieces_board[piecerow-2][piececol+2] == 0 and pieces_board[piecero-1][piececol+1] in player1.getPieces(): # up-right
+						fin_list.append((piecerow-2, piececol+2))
+
+			if pieces_board[piecerow+1][piececol-1] in player1.getPieces() or  pieces_board[piecerow+1][piececol+1] in player1.getPieces(): # Checks for down-left or down-right
+				if (piecerow+2 <= 7 and piececol-2 >= 0):
+					if pieces_board[piecerow+2][piececol-2] == 0 and pieces_board[piecerow+1][piececol-1] in player1.getPieces(): # down-left
+						fin_list.append((piecerow+2, piececol-2))
+				if piecerow+2 <= 7 and piececol + 2 <= 7:
+					if pieces_board[piecerow+2][piececol+2] == 0 and pieces_board[piecerow+1][piececol+1] in player1.getPieces(): # down-right
+						fin_list.append((piecerow+2, piececol+2))
+			if len(fin_list) > 0:
+				return fin_list
+		else: # If piece is not king
+			if pieces_board[piecerow+1][piececol-1] in player1.getPieces() or  pieces_board[piecerow+1][piececol+1] in player1.getPieces(): # Checking down-left and down-right
+				if (piecerow+2 <= 7 and piececol-2 >= 0):
+					if pieces_board[piecerow+2][piececol-2] == 0 and pieces_board[piecerow+1][piececol-1] in player1.getPieces(): # down-left
+						fin_list.append((piecerow+2, piececol-2))
+				if piecerow+2 <= 7 and piececol+2 <= 7:
+					if pieces_board[piecerow+2][piececol+2] == 0 and pieces_board[piecerow+1][piececol+1] in player1.getPieces(): # down-right
+						fin_list.append((piecerow+2, piececol+2))
+			if len(fin_list) > 0:
+				return fin_list
+		if (piecerow+1 <= 7 and piececol-1 >= 0): # Movements not involving capturing a piece
+			if pieces_board[piecerow+1][piececol-1] == 0: # down-left
 				fin_list.append((piecerow+1, piececol-1))
 		if (piecerow+1 <= 7 and piececol+1 <= 7):
-			if pieces_board[piecerow+1][piececol+1] == 0:
+			if pieces_board[piecerow+1][piececol+1] == 0: # down-right
 				fin_list.append((piecerow+1, piececol+1))
 	return fin_list
 
